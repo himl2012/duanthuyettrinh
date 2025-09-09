@@ -54,7 +54,7 @@
         position: relative;
         overflow: hidden;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        transition: transform 3s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: transform 2s cubic-bezier(0.23, 1, 0.32, 1);
       }
 
       .wheel-section {
@@ -449,6 +449,7 @@
       const newQuestionBtn = document.getElementById("newQuestionBtn");
       const answerContainer = document.getElementById("answerContainer");
       const answerText = document.getElementById("answerText");
+      let remainingQuestions = [...questions]; // copy toàn bộ để quản lý không trùng lặp
 
       let currentQuestion = null;
       let spinning = false;
@@ -466,16 +467,24 @@
         answerContainer.style.display = "none";
 
         // Random rotation (multiple full rotations + random position)
-        const randomRotation = Math.random() * 360 + 1440; // At least 4 full rotations
+        const randomRotation = Math.random() * 360 + 1080; // ít nhất 3 vòng
         wheel.style.transform = `rotate(${randomRotation}deg)`;
 
         setTimeout(() => {
-          const finalRotation = randomRotation % 360;
-          const questionIndex = Math.floor((360 - finalRotation) / 60) % 6;
-          showQuestion(questions[questionIndex]);
+          // chọn ngẫu nhiên trong danh sách còn lại
+          const randomIndex = Math.floor(
+            Math.random() * remainingQuestions.length
+          );
+          const selectedQuestion = remainingQuestions[randomIndex];
+
+          // xóa câu hỏi vừa chọn để không bị lặp lại
+          remainingQuestions.splice(randomIndex, 1);
+
+          showQuestion(selectedQuestion);
+
           spinning = false;
           spinBtn.disabled = false;
-        }, 3000);
+        }, 2000); // khớp với transition 2s
       }
 
       function showQuestion(question) {
