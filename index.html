@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Con Quay - Tư Tưởng Hồ Chí Minh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 2.5em;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .wheel-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 8px solid #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+        }
+
+        .wheel-section:nth-child(1) {
+            background: #ff6b6b;
+            transform: rotate(0deg);
+        }
+        .wheel-section:nth-child(2) {
+            background: #4ecdc4;
+            transform: rotate(60deg);
+        }
+        .wheel-section:nth-child(3) {
+            background: #45b7d1;
+            transform: rotate(120deg);
+        }
+        .wheel-section:nth-child(4) {
+            background: #96ceb4;
+            transform: rotate(180deg);
+        }
+        .wheel-section:nth-child(5) {
+            background: #feca57;
+            transform: rotate(240deg);
+        }
+        .wheel-section:nth-child(6) {
+            background: #ff9ff3;
+            transform: rotate(300deg);
+        }
+
+        .wheel-number {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 20px solid #fff;
+            z-index: 10;
+        }
+
+        .spin-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.4);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            margin-top: 20px;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-title {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #34495e;
+        }
+
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .answer-container {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .answer-label {
+            color: #155724;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .answer-text {
+            color: #155724;
+            font-size: 1.1em;
+        }
+
+        .show-answer-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .show-answer-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .new-question-btn {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .new-question-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .wheel {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .question-container {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Trò Chơi Con Quay - Tư Tưởng Hồ Chí Minh 🎯</h1>
+    
+    <div class="game-container">
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="wheel-section">
+                    <div class="wheel-number">1</div>
+                </div>
+                <div class="wheel-section">
+                    <div class="wheel-number">2</div>
+                </div>
+                <div class="wheel-section">
+                    <div class="wheel-number">3</div>
+                </div>
+                <div class="wheel-section">
+                    <div class="wheel-number">4</div>
+                </div>
+                <div class="wheel-section">
+                    <div class="wheel-number">5</div>
+                </div>
+                <div class="wheel-section">
+                    <div class="wheel-number">6</div>
+                </div>
+            </div>
+            <button class="spin-button" id="spinBtn">🎲 QUAY NGAY!</button>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <h2 class="question-title" id="questionTitle">Câu Hỏi</h2>
+            <p class="question-text" id="questionText"></p>
+            <ul class="options" id="optionsList"></ul>
+            
+            <div class="button-group">
+                <button class="show-answer-btn" id="showAnswerBtn">Xem Đáp Án</button>
+                <button class="new-question-btn" id="newQuestionBtn">Câu Hỏi Khác</button>
+            </div>
+            
+            <div class="answer-container" id="answerContainer">
+                <div class="answer-label">✅ Đáp án đúng:</div>
+                <div class="answer-text" id="answerText"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                title: "Câu 1",
+                question: "Theo tư tưởng Hồ Chí Minh, nhân dân có vai trò như thế nào trong việc xây dựng, chỉnh đốn Đảng?",
+                options: [
+                    "A. Chỉ có vai trò giám sát từ bên ngoài",
+                    "B. Là chủ thể, có quyền và trách nhiệm tham gia trực tiếp",
+                    "C. Vai trò thụ động, chỉ thực hiện theo chỉ đạo",
+                    "D. Không có vai trò gì trong công việc này"
+                ],
+                answer: "B. Là chủ thể, có quyền và trách nhiệm tham gia trực tiếp"
+            },
+            {
+                id: 2,
+                title: "Câu 2", 
+                question: "Trong tư tưởng Hồ Chí Minh, nguyên nhân chủ yếu dẫn đến sự sa sút của cán bộ, đảng viên là gì?",
+                options: [
+                    "A. Chưa nắm vững chính sách, bệnh quan liêu, công thần, tham ô hủ hóa",
+                    "B. Thiếu trình độ học vấn và kinh nghiệm công tác",
+                    "C. Áp lực công việc quá lớn, không có thời gian học tập",
+                    "D. Tập trung phát triển sản xuất nhưng thiếu tinh thần chiến đấu"
+                ],
+                answer: "A. Chưa nắm vững chính sách, bệnh quan liêu, công thần, tham ô hủ hóa"
+            },
+            {
+                id: 3,
+                title: "Câu 3",
+                question: "Theo Hồ Chí Minh, lý luận có vai trò như thế nào đối với công tác thực tế của Đảng?",
+                options: [
+                    "A. Là công cụ tuyên truyền đơn thuần",
+                    "B. Như cái kim chỉ nam, định hướng cho hành động",
+                    "C. Chỉ cần thiết trong nghiên cứu, không quan trọng trong thực tiễn",
+                    "D. Là phương tiện bổ trợ, không phải yếu tố quyết định"
+                ],
+                answer: "B. Như cái kim chỉ nam, định hướng cho hành động"
+            },
+            {
+                id: 4,
+                title: "Câu 4",
+                question: "Nhân dân có thể tham gia trực tiếp xây dựng, chỉnh đốn Đảng bằng cách nào?",
+                options: [
+                    "A. Thông qua Quốc hội và Hội đồng nhân dân các cấp",
+                    "B. Phản ánh, góp ý với các cấp ủy Đảng về công tác cán bộ, chủ trương, đường lối của Đảng",
+                    "C. Thông qua báo chí và các tổ chức xã hội quốc tế",
+                    "D. Bằng việc tham gia các hoạt động kinh tế, sản xuất"
+                ],
+                answer: "B. Phản ánh, góp ý với các cấp ủy Đảng về công tác cán bộ, chủ trương, đường lối của Đảng"
+            },
+            {
+                id: 5,
+                title: "Câu 5",
+                question: "Thế hệ trẻ đóng vai trò như thế nào trong công tác phát triển Đảng hiện nay?",
+                options: [
+                    "A. Là đối tượng thụ động, chủ yếu tiếp nhận tuyên truyền",
+                    "B. Là lực lượng kế cận, tham gia tích cực vào công tác tuyên truyền, xây dựng và vận hành các kênh thông tin hiện đại",
+                    "C. Là lực lượng hỗ trợ thứ yếu, ít ảnh hưởng đến sự phát triển Đảng",
+                    "D. Chỉ tham gia hoạt động phong trào, không có vai trò trong công tác tư tưởng"
+                ],
+                answer: "B. Là lực lượng kế cận, tham gia tích cực vào công tác tuyên truyền, xây dựng và vận hành các kênh thông tin hiện đại"
+            },
+            {
+                id: 6,
+                title: "Câu 6",
+                question: "Theo tư tưởng Hồ Chí Minh, xây dựng Đảng về đạo đức cần tập trung vào những điểm nào?",
+                options: [
+                    "A. Tập trung rèn luyện nghiệp vụ, kỹ năng quản lý, kiểm tra",
+                    "B. Tu dưỡng đạo đức bền bỉ suốt đời; nêu gương, nói đi đôi với làm; xây dựng đạo đức mới, đấu tranh với phi đạo đức",
+                    "C. Chú trọng nhiều đến công tác thi đua khen thưởng",
+                    "D. Tập trung chủ yếu vào việc ban hành quy định và quy chế"
+                ],
+                answer: "B. Tu dưỡng đạo đức bền bỉ suốt đời; nêu gương, nói đi đôi với làm; xây dựng đạo đức mới, đấu tranh với phi đạo đức"
+            }
+        ];
+
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spinBtn');
+        const questionContainer = document.getElementById('questionContainer');
+        const questionTitle = document.getElementById('questionTitle');
+        const questionText = document.getElementById('questionText');
+        const optionsList = document.getElementById('optionsList');
+        const showAnswerBtn = document.getElementById('showAnswerBtn');
+        const newQuestionBtn = document.getElementById('newQuestionBtn');
+        const answerContainer = document.getElementById('answerContainer');
+        const answerText = document.getElementById('answerText');
+
+        let currentQuestion = null;
+        let spinning = false;
+
+        spinBtn.addEventListener('click', spinWheel);
+        showAnswerBtn.addEventListener('click', showAnswer);
+        newQuestionBtn.addEventListener('click', hideQuestionAndSpin);
+
+        function spinWheel() {
+            if (spinning) return;
+            
+            spinning = true;
+            spinBtn.disabled = true;
+            questionContainer.style.display = 'none';
+            answerContainer.style.display = 'none';
+            
+            // Random rotation (multiple full rotations + random position)
+            const randomRotation = Math.random() * 360 + 1440; // At least 4 full rotations
+            wheel.style.transform = `rotate(${randomRotation}deg)`;
+            
+            setTimeout(() => {
+                const finalRotation = randomRotation % 360;
+                const questionIndex = Math.floor((360 - finalRotation) / 60) % 6;
+                showQuestion(questions[questionIndex]);
+                spinning = false;
+                spinBtn.disabled = false;
+            }, 3000);
+        }
+
+        function showQuestion(question) {
+            currentQuestion = question;
+            questionTitle.textContent = question.title;
+            questionText.textContent = question.question;
+            
+            optionsList.innerHTML = '';
+            question.options.forEach(option => {
+                const li = document.createElement('li');
+                li.className = 'option';
+                li.textContent = option;
+                optionsList.appendChild(li);
+            });
+            
+            answerText.textContent = question.answer;
+            questionContainer.style.display = 'block';
+            answerContainer.style.display = 'none';
+            
+            // Scroll to question
+            questionContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showAnswer() {
+            answerContainer.style.display = 'block';
+            answerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function hideQuestionAndSpin() {
+            questionContainer.style.display = 'none';
+            answerContainer.style.display = 'none';
+            document.querySelector('.wheel-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+</body>
+</html>
